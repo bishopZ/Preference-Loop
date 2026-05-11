@@ -1,0 +1,21 @@
+{
+  "app.name": "Modèle 2026",
+  "home.title": "Créez des applications web modernes",
+  "home.subtitle": "Un boilerplate TypeScript full-stack documenté avec des guides d'architecture, des workflows testés et des choix prêts pour la production.",
+  "home.getStarted": "Commencer",
+  "home.learnMore": "En savoir plus",
+  "home.feature.fast.title": "Documentation d'abord",
+  "home.feature.fast.description": "Des guides clairs sur l'architecture, les scripts et l'organisation client/serveur aident l'équipe à avancer rapidement.",
+  "home.feature.auth.title": "Global par défaut",
+  "home.feature.auth.description": "L'i18n intégrée, les patterns d'accessibilité et les composants réutilisables favorisent un développement inclusif.",
+  "home.feature.production.title": "Livrer en confiance",
+  "home.feature.production.description": "Des scripts standardisés, une couverture Cypress et des patterns Redux typés rendent les livraisons prévisibles.",
+  "nav.home": "Accueil",
+  "nav.about": "À propos",
+  "nav.login": "Connexion",
+  "nav.logout": "Déconnexion",
+  "nav.product": "Produit",
+  "footer.copyright": "© {year} [insérez le nom du projet ici]. Tous droits réservés.",
+  "footer.policies": "Guide des politiques",
+  "footer.cookiesEssential": "Ce site utilise uniquement des cookies essentiels."
+}

@@ -1,0 +1,35 @@
+import { Box, Flex, Text } from '@chakra-ui/react';
+import { useTheme } from 'next-themes';
+import { FormattedMessage } from 'react-intl';
+import { ROUTES } from '@/client/utilities/constants';
+import { Link } from '../components/link';
+
+export const Footer = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const textColor = isDark ? 'gray.400' : 'gray.600';
+  const hoverColor = isDark ? 'gray.200' : 'gray.800';
+
+  return (
+    <Box as="footer" bg={isDark ? 'gray.800' : 'gray.100'} py={4} px={8}>
+      <Flex justify="center" align="center" gap={4} direction={{ base: 'column', sm: 'row' }}>
+        <Text fontSize="sm" color={textColor}>
+          <FormattedMessage id="footer.copyright" values={{ year: new Date().getFullYear() }} />
+        </Text>
+        <Link
+          to={ROUTES.POLICIES}
+          fontSize="sm"
+          color={textColor}
+          _hover={{ color: hoverColor }}
+          textDecoration="underline"
+        >
+          <FormattedMessage id="footer.policies" />
+        </Link>
+      </Flex>
+      {/* Replace this message if you add analytics/tracking or begin storing personal user data. */}
+      <Text fontSize="xs" color={textColor} textAlign="center" mt={3}>
+        <FormattedMessage id="footer.cookiesEssential" />
+      </Text>
+    </Box>
+  );
+};

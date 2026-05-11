@@ -1,0 +1,21 @@
+{
+  "app.name": "نموذج 2026",
+  "home.title": "ابنِ تطبيقات ويب حديثة",
+  "home.subtitle": "قالب TypeScript متكامل وموثق يتضمن أدلة للمعمارية ومسارات عمل مجرّبة وإعدادات جاهزة للإنتاج.",
+  "home.getStarted": "ابدأ الآن",
+  "home.learnMore": "اعرف المزيد",
+  "home.feature.fast.title": "التوثيق أولاً",
+  "home.feature.fast.description": "أدلة واضحة للمعمارية والسكريبتات وتنظيم العميل/الخادم تساعد الفريق على الانطلاق بسرعة وباتساق.",
+  "home.feature.auth.title": "جاهز للعالمية",
+  "home.feature.auth.description": "دعم i18n وأنماط الوصول والمكونات القابلة لإعادة الاستخدام مدمج افتراضياً لبناء منتجات شاملة.",
+  "home.feature.production.title": "إطلاق بثقة",
+  "home.feature.production.description": "سكريبتات موحدة وتغطية Cypress وأنماط Redux قوية ومطبوعة تجعل عملية الإصدار أكثر قابلية للتنبؤ.",
+  "nav.home": "الرئيسية",
+  "nav.about": "حول",
+  "nav.login": "تسجيل الدخول",
+  "nav.logout": "تسجيل الخروج",
+  "nav.product": "المنتج",
+  "footer.copyright": "© {year} [أدخل اسم المشروع هنا]. جميع الحقوق محفوظة.",
+  "footer.policies": "دليل السياسات",
+  "footer.cookiesEssential": "يستخدم هذا الموقع ملفات تعريف الارتباط الأساسية فقط."
+}
