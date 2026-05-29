@@ -39,5 +39,9 @@ NODE_ENV=development
 # Optional placeholders for future real-auth profile wiring:
 # SUPABASE_URL=
 # SUPABASE_ANON_KEY=
-# DATABASE_URL=
+
+# Postgres.com (Preference Signal Capture Loop)
+# Set to your Postgres.com connection string in .env before first deploy.
+# Run migrations/001_create_people.sql once: psql $DATABASE_URL -f migrations/001_create_people.sql
+DATABASE_URL=
 

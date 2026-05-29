@@ -26,3 +26,10 @@ export const KEY_LENGTH = 64;
 export const DIGEST = 'sha512';
 
 export const BASE = 10;
+
+export const PEOPLE_PATHS = {
+  SIGNAL: '/api/people/signal',
+  SIGNAL_BATCH: '/api/people/signal/batch',
+  PERSON_BY_ID: '/api/people/:id',
+  ADMIN_LIST: '/api/admin/people',
+} as const;

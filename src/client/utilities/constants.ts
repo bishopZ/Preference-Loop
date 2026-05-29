@@ -25,6 +25,7 @@ export const ROUTES = {
   ABOUT: '/about',
   POLICIES: '/policies',
   LOGOUT: '/logout',
+  ADMIN_PEOPLE: '/admin/people',
 } as const;
 
 export const API_PATHS = {
