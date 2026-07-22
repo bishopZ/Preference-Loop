@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { query } from '../db';
 
 // Closed enum: only these event values are accepted.
@@ -64,7 +64,7 @@ export const postSignal = async (req: Request, res: Response): Promise<void> => 
         WHERE id = $1
         RETURNING id, shown_count, trial_count, positive_count
       `;
-      const result = await query(sql, [id as string]);
+      const result = await query(sql, [id]);
       if (result.rowCount === 0) {
         res.status(404).json({ error: 'Person not found' });
         return;
@@ -106,7 +106,7 @@ export const postSignal = async (req: Request, res: Response): Promise<void> => 
       `;
       const result = await query(sql, [
         normalizedTitle,
-        (name as string).trim(),
+        name.trim(),
         wikipedia_page_url ?? null,
         wikipedia_image_url ?? null,
       ]);
@@ -124,6 +124,206 @@ export const postSignal = async (req: Request, res: Response): Promise<void> => 
  * Returns aggregate list (up to 200 rows, ordered by trial_count DESC).
  * Requires ensureAuthenticated middleware on the route.
  */
+// Postgres error codes surfaced by the CRUD handlers.
+const PG_UNIQUE_VIOLATION = '23505';
+const PG_INVALID_TEXT_REPRESENTATION = '22P02'; // e.g. malformed UUID
+
+const getPgErrorCode = (err: unknown): string | undefined =>
+  (err as { code?: string }).code;
+
+const PERSON_COLUMNS = `
+  id,
+  name,
+  wikipedia_article_title,
+  wikipedia_page_url,
+  wikipedia_image_url,
+  shown_count,
+  trial_count,
+  positive_count,
+  last_updated
+`;
+
+/** Validates an optional URL-ish text field: undefined, null, or non-empty string. */
+const normalizeOptionalText = (value: unknown): string | null | undefined => {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value === 'string' && value.trim().length > 0) return value.trim();
+  return undefined; // signals invalid — callers treat non-null invalids as 400
+};
+
+/**
+ * POST /api/admin/people
+ *
+ * Creates a person. Body: { name (required), wikipedia_article_title?,
+ * wikipedia_page_url?, wikipedia_image_url? }.
+ * Returns 201 with the full person row. Requires ensureAuthenticatedApi.
+ */
+export const createPerson = async (req: Request, res: Response): Promise<void> => {
+  const { name, wikipedia_article_title, wikipedia_page_url, wikipedia_image_url } =
+    req.body as Record<string, unknown>;
+
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    res.status(400).json({ error: 'name is required' });
+    return;
+  }
+
+  let normalizedTitle: string | null = null;
+  if (wikipedia_article_title !== undefined && wikipedia_article_title !== null) {
+    if (
+      typeof wikipedia_article_title !== 'string' ||
+      wikipedia_article_title.trim().length === 0
+    ) {
+      res
+        .status(400)
+        .json({ error: 'wikipedia_article_title must be a non-empty string when provided' });
+      return;
+    }
+    normalizedTitle = wikipedia_article_title.trim();
+  }
+
+  const pageUrl = normalizeOptionalText(wikipedia_page_url) ?? null;
+  const imageUrl = normalizeOptionalText(wikipedia_image_url) ?? null;
+
+  try {
+    const sql = `
+      INSERT INTO people (
+        name,
+        wikipedia_article_title,
+        wikipedia_page_url,
+        wikipedia_image_url,
+        last_updated
+      )
+      VALUES ($1, $2, $3, $4, now())
+      RETURNING ${PERSON_COLUMNS}
+    `;
+    const result = await query(sql, [name.trim(), normalizedTitle, pageUrl, imageUrl]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    if (getPgErrorCode(err) === PG_UNIQUE_VIOLATION) {
+      res
+        .status(409)
+        .json({ error: 'A person with that wikipedia_article_title already exists' });
+      return;
+    }
+    console.error('createPerson error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * PUT /api/admin/people/:id
+ *
+ * Partial update. Updatable fields: name, wikipedia_article_title (null clears
+ * eligibility), wikipedia_page_url, wikipedia_image_url.
+ * Returns 200 with the full updated row. Requires ensureAuthenticatedApi.
+ */
+export const updatePerson = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const body = req.body as Record<string, unknown>;
+
+  const sets: string[] = [];
+  const values: unknown[] = [];
+  const addSet = (column: string, value: unknown): void => {
+    values.push(value);
+    sets.push(`${column} = $${String(values.length)}`);
+  };
+
+  if ('name' in body) {
+    if (typeof body.name !== 'string' || body.name.trim().length === 0) {
+      res.status(400).json({ error: 'name must be a non-empty string' });
+      return;
+    }
+    addSet('name', body.name.trim());
+  }
+
+  if ('wikipedia_article_title' in body) {
+    const title = body.wikipedia_article_title;
+    if (title === null) {
+      addSet('wikipedia_article_title', null);
+    } else if (typeof title === 'string' && title.trim().length > 0) {
+      addSet('wikipedia_article_title', title.trim());
+    } else {
+      res
+        .status(400)
+        .json({ error: 'wikipedia_article_title must be a non-empty string or null' });
+      return;
+    }
+  }
+
+  for (const field of ['wikipedia_page_url', 'wikipedia_image_url'] as const) {
+    if (field in body) {
+      const normalized = normalizeOptionalText(body[field]);
+      if (normalized === undefined && body[field] !== null) {
+        res.status(400).json({ error: `${field} must be a non-empty string or null` });
+        return;
+      }
+      addSet(field, normalized ?? null);
+    }
+  }
+
+  if (sets.length === 0) {
+    res.status(400).json({ error: 'No updatable fields provided' });
+    return;
+  }
+
+  try {
+    values.push(id);
+    const sql = `
+      UPDATE people
+      SET ${sets.join(', ')},
+          last_updated = now()
+      WHERE id = $${String(values.length)}
+      RETURNING ${PERSON_COLUMNS}
+    `;
+    const result = await query(sql, values);
+    if (result.rowCount === 0) {
+      res.status(404).json({ error: 'Person not found' });
+      return;
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    const code = getPgErrorCode(err);
+    if (code === PG_INVALID_TEXT_REPRESENTATION) {
+      res.status(400).json({ error: 'id must be a valid UUID' });
+      return;
+    }
+    if (code === PG_UNIQUE_VIOLATION) {
+      res
+        .status(409)
+        .json({ error: 'A person with that wikipedia_article_title already exists' });
+      return;
+    }
+    console.error('updatePerson error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
+ * DELETE /api/admin/people/:id
+ *
+ * Returns 204 on success, 404 when the person does not exist.
+ * Requires ensureAuthenticatedApi.
+ */
+export const deletePerson = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const result = await query('DELETE FROM people WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+      res.status(404).json({ error: 'Person not found' });
+      return;
+    }
+    res.status(204).send();
+  } catch (err) {
+    if (getPgErrorCode(err) === PG_INVALID_TEXT_REPRESENTATION) {
+      res.status(400).json({ error: 'id must be a valid UUID' });
+      return;
+    }
+    console.error('deletePerson error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export const getPeopleAdmin = async (_req: Request, res: Response): Promise<void> => {
   try {
     const sql = `

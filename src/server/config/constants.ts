@@ -32,4 +32,5 @@ export const PEOPLE_PATHS = {
   SIGNAL_BATCH: '/api/people/signal/batch',
   PERSON_BY_ID: '/api/people/:id',
   ADMIN_LIST: '/api/admin/people',
+  ADMIN_PERSON: '/api/admin/people/:id',
 } as const;
