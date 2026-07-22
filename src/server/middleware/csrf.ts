@@ -5,6 +5,7 @@ import { API_ERRORS } from '../config/api-error';
 
 const CSRF_COOKIE_NAME = 'csrf-token';
 const CSRF_FIELD_NAME = '_csrf';
+const CSRF_HEADER_NAME = 'x-csrf-token';
 
 /**
  * Double-submit cookie CSRF protection.
@@ -23,12 +24,19 @@ const CSRF_FIELD_NAME = '_csrf';
 export const csrfProtection: RequestHandler = (req, res, next) => {
   const isUnsafeMethod = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
 
-  // Validate CSRF token on state-changing requests
+  // Validate CSRF token on state-changing requests.
+  // Accepted via the form field (browser forms) or the x-csrf-token
+  // header (JSON API clients, incl. bodyless DELETE requests).
   if (isUnsafeMethod) {
     const cookieToken = req.cookies?.[CSRF_COOKIE_NAME] as string | undefined;
-    const formToken = (req.body as Record<string, unknown>)[CSRF_FIELD_NAME] as string | undefined;
+    // req.body is undefined on bodyless requests (e.g. DELETE) — guard it.
+    const formToken = ((req.body ?? {}) as Record<string, unknown>)[CSRF_FIELD_NAME] as
+      | string
+      | undefined;
+    const headerToken = req.get(CSRF_HEADER_NAME);
+    const submittedToken = formToken ?? headerToken;
 
-    if (!cookieToken || !formToken || cookieToken !== formToken) {
+    if (!cookieToken || !submittedToken || cookieToken !== submittedToken) {
       const error = API_ERRORS.forbidden('CSRF token validation failed');
       res.status(error.status).json(error);
       return;
