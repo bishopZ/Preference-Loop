@@ -3,6 +3,7 @@ import { PEOPLE_PATHS } from '../config/constants';
 import {
   postSignal,
   getPeopleAdmin,
+  getRandomPerson,
   createPerson,
   updatePerson,
   deletePerson,
@@ -14,6 +15,9 @@ const router = Router();
 
 // Public write path — rate-limited
 router.post(PEOPLE_PATHS.SIGNAL, signalRateLimiter, postSignal);
+
+// Public read — fairness-weighted random eligible person (no auth, no limiter)
+router.get(PEOPLE_PATHS.RANDOM, getRandomPerson);
 
 // Admin read — requires authentication
 router.get(PEOPLE_PATHS.ADMIN_LIST, ensureAuthenticated, getPeopleAdmin);

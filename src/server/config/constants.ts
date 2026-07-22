@@ -29,6 +29,7 @@ export const BASE = 10;
 
 export const PEOPLE_PATHS = {
   SIGNAL: '/api/people/signal',
+  RANDOM: '/api/people/random',
   SIGNAL_BATCH: '/api/people/signal/batch',
   PERSON_BY_ID: '/api/people/:id',
   ADMIN_LIST: '/api/admin/people',

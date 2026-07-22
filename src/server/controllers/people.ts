@@ -152,6 +152,34 @@ const normalizeOptionalText = (value: unknown): string | null | undefined => {
 };
 
 /**
+ * GET /api/people/random
+ *
+ * Returns one eligible person (wikipedia_article_title IS NOT NULL),
+ * fairness-weighted toward lower shown_count (F-11). 404 when the
+ * eligible pool is empty. Public — no auth, no rate limiter (NFR-05/06).
+ */
+export const getRandomPerson = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const sql = `
+      SELECT ${PERSON_COLUMNS}
+      FROM people
+      WHERE wikipedia_article_title IS NOT NULL
+      ORDER BY (1.0 / (shown_count + 1)) * random() DESC
+      LIMIT 1
+    `;
+    const result = await query(sql);
+    if (result.rowCount === 0) {
+      res.status(404).json({ error: 'No eligible people yet' });
+      return;
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('getRandomPerson error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+/**
  * POST /api/admin/people
  *
  * Creates a person. Body: { name (required), wikipedia_article_title?,
