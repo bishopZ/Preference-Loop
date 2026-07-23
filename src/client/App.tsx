@@ -15,6 +15,8 @@ const About = lazy(() => import('./pages/About'));
 const Login = lazy(() => import('./pages/Login'));
 const Policies = lazy(() => import('./pages/Policies'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const PersonForm = lazy(() => import('./pages/admin/PersonForm'));
+const PeopleDashboard = lazy(() => import('./pages/admin/PeopleDashboard'));
 
 const App = () => {
   const { loading, error } = useSelector((state: RootState) => state.preferences);
@@ -37,6 +39,9 @@ const App = () => {
           <Route path={ROUTES.ABOUT} element={<About />} />
           <Route path={ROUTES.LOGIN} element={<Login />} />
           <Route path={ROUTES.POLICIES} element={<Policies />} />
+          <Route path={ROUTES.ADMIN_PEOPLE} element={<PeopleDashboard />} />
+          <Route path={ROUTES.ADMIN_PEOPLE_NEW} element={<PersonForm />} />
+          <Route path={ROUTES.ADMIN_PEOPLE_EDIT} element={<PersonForm />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

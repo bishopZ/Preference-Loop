@@ -26,12 +26,19 @@ export const ROUTES = {
   POLICIES: '/policies',
   LOGOUT: '/logout',
   ADMIN_PEOPLE: '/admin/people',
+  ADMIN_PEOPLE_NEW: '/admin/people/new',
+  ADMIN_PEOPLE_EDIT: '/admin/people/:id/edit',
 } as const;
+
+/** Builds the concrete edit path for a person id. */
+export const adminPeopleEditPath = (id: string): string =>
+  ROUTES.ADMIN_PEOPLE_EDIT.replace(':id', id);
 
 export const API_PATHS = {
   LOGIN: '/login/password',
   LOGOUT: '/logout',
   SESSION: '/api/session',
   KEY: '/api/key',
+  ADMIN_PEOPLE: '/api/admin/people',
 } as const;
 
