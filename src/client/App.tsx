@@ -10,7 +10,6 @@ import { ROUTES } from './utilities/constants';
 import { Routes, Route, BrowserRouter } from 'react-router';
 import Home from './pages/Home';
 
-const Product = lazy(() => import('./pages/Product'));
 const About = lazy(() => import('./pages/About'));
 const Login = lazy(() => import('./pages/Login'));
 const Policies = lazy(() => import('./pages/Policies'));
@@ -35,7 +34,6 @@ const App = () => {
         <ScrollToTop />
         <Routes>
           <Route path={ROUTES.HOME} element={<Home />} />
-          <Route path={ROUTES.PRODUCT} element={<Product />} />
           <Route path={ROUTES.ABOUT} element={<About />} />
           <Route path={ROUTES.LOGIN} element={<Login />} />
           <Route path={ROUTES.POLICIES} element={<Policies />} />

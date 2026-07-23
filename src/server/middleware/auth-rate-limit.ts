@@ -43,7 +43,12 @@ export const loginRateLimiter = rateLimit({
   },
   skipSuccessfulRequests: true,
   requestWasSuccessful: (_req, res) => {
-    return res.statusCode === 302 && res.getHeader('location') === ROUTES.PRODUCT;
+    // Legacy form login redirects to the admin landing page on success.
+    if (res.statusCode === 302 && res.getHeader('location') === ROUTES.ADMIN_PEOPLE) {
+      return true;
+    }
+    // REST session create returns 201 JSON — must not count toward the limit.
+    return res.statusCode === 201;
   },
   handler: (_req, res, _next, options) => {
     const message = typeof options.message === 'string'

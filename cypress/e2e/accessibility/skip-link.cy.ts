@@ -1,6 +1,7 @@
 describe('Skip link accessibility', () => {
   it('shows the skip link when the user presses Tab', () => {
-    cy.visit('/');
+    // Use a static PageLayout page — `/` is the voting loop with async focusables.
+    cy.visit('/about');
 
     cy.get('body').click('topLeft');
     cy.press(Cypress.Keyboard.Keys.TAB);

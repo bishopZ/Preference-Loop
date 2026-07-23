@@ -46,7 +46,7 @@ const fetchPeople = (fn: (people: PersonRow[]) => void) => {
 
 describe('Admin person form (F-04, F-14)', () => {
   it('redirects unauthenticated visitors to login', () => {
-    cy.clearCookie('token');
+    cy.clearCookies();
     cy.visit('/admin/people/new');
     cy.location('pathname').should('eq', '/login');
   });

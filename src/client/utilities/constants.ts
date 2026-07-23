@@ -21,7 +21,6 @@ export const META = {
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
-  PRODUCT: '/product',
   ABOUT: '/about',
   POLICIES: '/policies',
   LOGOUT: '/logout',

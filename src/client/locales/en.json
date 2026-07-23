@@ -15,7 +15,6 @@
   "nav.login": "Login",
   "nav.logout": "Logout",
   "nav.people": "People",
-  "nav.product": "Product",
   "admin.people.new": "New Person",
   "admin.people.edit": "Edit Person",
   "admin.people.name": "Name",

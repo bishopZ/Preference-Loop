@@ -50,7 +50,7 @@ const seedPerson = (
 
 describe('People admin list (F-05, F-13)', () => {
   it('redirects unauthenticated visitors to login', () => {
-    cy.clearCookie('token');
+    cy.clearCookies();
     cy.visit('/admin/people');
     cy.location('pathname').should('eq', '/login');
   });

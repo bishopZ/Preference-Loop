@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Preference Signal Capture Loop UI: admin people CRUD (`/admin/people`, create/edit forms, list filters), public voting loop at `/` (`shown` / `positive` / `trial` signals via fairness-weighted `GET /api/people/random`), and auth-aware header with People as the post-login landing surface.
 - Added feature-flag starter support with env defaults (`VITE_FEATURE_FLAGS`) and runtime hook-based overrides (`useFeatureFlag`).
 - Added `docs/FEATURE_FLAGS.md` to document feature-flag setup and usage.
 - Added auth backing starter profiles (`AUTH_PROFILE=local|supabase|postgres`) with setup guidance in `docs/AUTH_PROFILES.md`.
@@ -21,7 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a localized footer GDPR notice clarifying that only essential cookies are used by default.
 - Added `skills/playwright-migration/SKILL.md` to standardize migration from Cypress to Playwright with clear file updates, validation steps, and done criteria.
 - Added `cypress/e2e/layout/footer-position.cy.ts` to verify the footer remains pinned to the viewport bottom on short pages.
-- Added WebMCP `increment-counter` tool registration on the private Product page, plus Cypress coverage in `cypress/e2e/auth/webmcp-increment.cy.ts`.
 - Added Simplified Chinese (`zh`) locale support across the client i18n provider, language switcher, locale dictionaries, and i18n key validation.
 - Added a combined policy-writing guide page at `/policies` plus a maintenance SOP in `skills/policy-guide/SKILL.md`.
 - Added a config-driven redirect system in `src/server/config/redirects.ts` with middleware integration and E2E coverage (`cypress/e2e/routing/redirects.cy.ts`).
@@ -29,21 +29,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a shared client `Link` component that unifies Chakra UI link styling with React Router navigation and standardized external-link handling.
 
 ### Changed
+- Post-login redirect and login rate-limit success check now target `/admin/people` instead of `/product`.
 - Updated auth verification to route through profile-aware starter mode logic (`local` works by default; `supabase`/`postgres` require provider wiring).
 - Reduced duplication across route loading fallbacks, back-home page CTAs, and Express pass-through handlers.
 - Centralized repeated rate-limit message/user literals and removed redundant store throttle literal in favor of utility defaults.
 - Compacted boundary guidance docs by keeping details in architecture docs and linking from client/contributing docs.
-- Refined React boundary placement: route-level `Suspense` now handles lazy page loading, `PageLayout` no longer wraps all page content in a blanket `Suspense`, and product counter actions use feature-level `ErrorBoundary` + local `Suspense`.
+- Refined React boundary placement: route-level `Suspense` now handles lazy page loading, `PageLayout` no longer wraps all page content in a blanket `Suspense`.
 - Added React 19 `Activity` around loading fallbacks for route and feature loading states.
-- Refactored WebMCP registration logic into `src/client/utilities/webmcp.ts` so the Product page stays focused on view behavior.
 - Updated `PageLayout` to use a full-height flex column so the footer consistently sits at the bottom of the viewport.
 - Replaced separate Terms/Privacy footer links with a single policy guide link and routed legacy `/privacy` and `/terms` paths to `/policies`.
 - Refined testing guidance across `AGENTS.md`, `docs/CONTRIBUTING.md`, and `cypress/README.md` to keep E2E contract coverage lean and migration-friendly while still requiring feature-level automated tests at the right layer.
 - Simplified `cypress/e2e/seo/page-meta.cy.ts` to assert core metadata contracts without over-coupling to every page-specific metadata field.
 - Replaced client-side CryptoJS encryption/decryption with native Web Crypto API (AES-GCM + PBKDF2) in persistence flow.
 ### Removed
+- Removed boilerplate Product counter demo (`Product.tsx`, `product-counter-section.tsx`, `feature-card.tsx`), WebMCP increment tooling (`webmcp.ts`, `webmcp-increment.cy.ts`), `/product` route, `ROUTES.PRODUCT`, and `nav.product` locale keys.
 - Removed `crypto-js` and `@types/crypto-js` dependencies.
 ### Fixed
+- Made legacy `people.imdb_name_id` and `people.slug` columns nullable (`migrations/002_nullable_imdb_slug.sql`) so name-only admin creates match F-01 instead of returning 500.
+- Updated `language-switcher` E2E to assert the header brand `h1` (voting loop at `/` has no `main h1`).
+- Pointed `skip-link` E2E at `/about` so Tab order is not coupled to the async voting UI on `/`.
+- Login rate limiter now treats successful `POST /api/session` (201) as success so Cypress/API logins are not counted toward the attempt cap.
+- Admin people list GET now returns 401 JSON when unauthenticated (same as write endpoints) so the SPA reliably redirects to `/login`.
 ### Security
 - Added IP-based rate limiting for `POST /login/password` with configurable env overrides (`LOGIN_RATE_LIMIT_MAX_ATTEMPTS`, `LOGIN_RATE_LIMIT_WINDOW_MS`).
 

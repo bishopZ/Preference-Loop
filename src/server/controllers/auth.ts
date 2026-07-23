@@ -57,7 +57,7 @@ export const postLogin: RequestHandler = (req, res, next) => {
     next,
     (user) => {
       createSession(res, user);
-      res.redirect(ROUTES.PRODUCT);
+      res.redirect(ROUTES.ADMIN_PEOPLE);
     },
     () => {
       res.redirect(ROUTES.LOGIN);

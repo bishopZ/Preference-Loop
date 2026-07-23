@@ -1,7 +1,6 @@
 import { Router, type RequestHandler } from 'express';
 import { ROUTES } from '../config/constants';
 import { getRedirectRule } from '../config/redirects';
-import { ensureAuthenticated } from '../middleware/auth';
 import { getSitemap } from '../controllers/sitemap';
 
 const router = Router();
@@ -30,9 +29,6 @@ router.get(ROUTES.HOME, passToVite);
 
 // Login page (SPA)
 router.get(ROUTES.LOGIN, passToVite);
-
-// Protected product page
-router.get(ROUTES.PRODUCT, ensureAuthenticated, passToVite);
 
 export default router;
 

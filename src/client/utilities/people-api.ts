@@ -57,13 +57,12 @@ const assertOk = async (response: Response): Promise<void> => {
 };
 
 /**
- * Fetches the admin people list. The list endpoint answers HTML clients
- * with a redirect to /login when unauthenticated, so a followed redirect
- * is treated the same as a 401 (ADR-CLU-B1 header auth applies to writes).
+ * Fetches the admin people list. Unauthenticated callers receive 401 JSON
+ * (ensureAuthenticatedApi); that is mapped to UnauthenticatedError so pages
+ * can redirect to /login.
  */
 export const fetchAdminPeople = async (): Promise<Person[]> => {
   const response = await fetch(API_PATHS.ADMIN_PEOPLE);
-  if (response.redirected) throw new UnauthenticatedError();
   await assertOk(response);
   const data = (await response.json()) as { people: Person[] };
   return data.people;

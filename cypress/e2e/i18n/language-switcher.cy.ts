@@ -1,9 +1,10 @@
 describe('Language switcher', () => {
   it('supports Chinese, French, and Arabic locale switching', () => {
+    // Brand lives in the header h1; `/` is the voting loop and has no main h1.
     cy.visit('/');
     const localeSelect = 'select[aria-label="Select language"]:visible';
 
-    const readHeading = () => cy.get('main h1').first().invoke('text').then((text) => text.trim());
+    const readHeading = () => cy.get('header h1').first().invoke('text').then((text) => text.trim());
 
     cy.get(localeSelect).first().select('en');
     cy.get(localeSelect).first().should('have.value', 'en');

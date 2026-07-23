@@ -9,7 +9,7 @@ import {
   deletePerson,
 } from '../controllers/people';
 import { signalRateLimiter } from '../middleware/people-rate-limit';
-import { ensureAuthenticated, ensureAuthenticatedApi } from '../middleware/auth';
+import { ensureAuthenticatedApi } from '../middleware/auth';
 
 const router = Router();
 
@@ -19,10 +19,8 @@ router.post(PEOPLE_PATHS.SIGNAL, signalRateLimiter, postSignal);
 // Public read — fairness-weighted random eligible person (no auth, no limiter)
 router.get(PEOPLE_PATHS.RANDOM, getRandomPerson);
 
-// Admin read — requires authentication
-router.get(PEOPLE_PATHS.ADMIN_LIST, ensureAuthenticated, getPeopleAdmin);
-
-// Admin writes — require authentication; 401 JSON when unauthenticated (NFR-04)
+// Admin read/write — require authentication; 401 JSON when unauthenticated (NFR-04)
+router.get(PEOPLE_PATHS.ADMIN_LIST, ensureAuthenticatedApi, getPeopleAdmin);
 router.post(PEOPLE_PATHS.ADMIN_LIST, ensureAuthenticatedApi, createPerson);
 router.put(PEOPLE_PATHS.ADMIN_PERSON, ensureAuthenticatedApi, updatePerson);
 router.delete(PEOPLE_PATHS.ADMIN_PERSON, ensureAuthenticatedApi, deletePerson);

@@ -22,10 +22,10 @@ describe('Login', () => {
     cy.visit('/login');
   });
 
-  it('redirects to the product route on successful login', () => {
+  it('redirects to the admin people route on successful login', () => {
     const { username, password } = getLoginCredentials();
     submitLogin(username, password);
-    cy.location('pathname').should('eq', '/product');
+    cy.location('pathname').should('eq', '/admin/people');
   });
 
   it('redirects back to /login on failed login', () => {

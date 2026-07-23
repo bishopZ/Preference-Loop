@@ -3,10 +3,10 @@ export const DEFAULT_PORT = '3000';
 export const ROUTES = {
   HOME: '/',
   LOGIN: '/login',
-  PRODUCT: '/product',
   ABOUT: '/about',
   POLICIES: '/policies',
   LOGOUT: '/logout',
+  ADMIN_PEOPLE: '/admin/people',
   SITEMAP: '/sitemap.xml',
 } as const;
 

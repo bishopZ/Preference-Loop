@@ -32,7 +32,7 @@ const login = (csrfToken: string) => {
 
 describe('Auth-aware header nav (F-10, AC-10)', () => {
   it('shows no admin links on public pages when unauthenticated', () => {
-    cy.clearCookie('token');
+    cy.clearCookies();
     cy.visit('/');
     cy.get('header').should('be.visible');
     cy.get('header').contains('People').should('not.exist');
@@ -41,7 +41,7 @@ describe('Auth-aware header nav (F-10, AC-10)', () => {
   });
 
   it('blocks admin pages when unauthenticated (no admin nav reachable)', () => {
-    cy.clearCookie('token');
+    cy.clearCookies();
     cy.visit('/admin/people');
     cy.location('pathname').should('eq', '/login');
   });
