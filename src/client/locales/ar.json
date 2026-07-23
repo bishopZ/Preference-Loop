@@ -41,6 +41,10 @@
   "admin.people.positives": "الإيجابيات",
   "admin.people.actions": "إجراءات",
   "admin.people.empty": "لا يوجد أشخاص بعد. أنشئ أول شخص.",
+  "voting.upvote": "أعجبني",
+  "voting.skip": "تخطّي",
+  "voting.wikiLink": "عرض على ويكيبيديا",
+  "voting.empty": "لا يوجد أحد للتصويت عليه بعد. تحقق مرة أخرى قريبًا.",
   "footer.copyright": "© {year} [أدخل اسم المشروع هنا]. جميع الحقوق محفوظة.",
   "footer.policies": "دليل السياسات",
   "footer.cookiesEssential": "يستخدم هذا الموقع ملفات تعريف الارتباط الأساسية فقط."

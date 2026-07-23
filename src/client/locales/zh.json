@@ -41,6 +41,10 @@
   "admin.people.positives": "好评",
   "admin.people.actions": "操作",
   "admin.people.empty": "暂无人物，请先创建。",
+  "voting.upvote": "喜欢",
+  "voting.skip": "跳过",
+  "voting.wikiLink": "在维基百科上查看",
+  "voting.empty": "暂时没有可投票的人。请稍后再来。",
   "footer.copyright": "© {year} [请在此填写项目名称]。保留所有权利。",
   "footer.policies": "政策指南",
   "footer.cookiesEssential": "本网站仅使用必要的 Cookie。"

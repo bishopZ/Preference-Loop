@@ -41,6 +41,10 @@
   "admin.people.positives": "Positives",
   "admin.people.actions": "Actions",
   "admin.people.empty": "No people yet. Create the first one.",
+  "voting.upvote": "Like",
+  "voting.skip": "Skip",
+  "voting.wikiLink": "View on Wikipedia",
+  "voting.empty": "No one to vote on yet. Check back soon.",
   "footer.copyright": "© {year} [insert project name here]. All rights reserved.",
   "footer.policies": "Policy Guide",
   "footer.cookiesEssential": "This site only uses essential cookies."

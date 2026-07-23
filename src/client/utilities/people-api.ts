@@ -96,3 +96,34 @@ export const deletePerson = async (id: string): Promise<void> => {
   });
   await assertOk(response);
 };
+
+/** Signal events the public voting loop can emit (F-06–F-08). */
+export type SignalEvent = 'shown' | 'trial' | 'positive';
+
+const HTTP_NOT_FOUND = 404;
+
+/**
+ * Fetches one fairness-weighted eligible person for the public voting loop.
+ * Returns `null` when the eligible pool is empty (F-11 / F-12 empty state),
+ * so callers can render the empty state instead of treating 404 as an error.
+ */
+export const fetchRandomPerson = async (): Promise<Person | null> => {
+  const response = await fetch(API_PATHS.PEOPLE_RANDOM);
+  if (response.status === HTTP_NOT_FOUND) return null;
+  if (!response.ok) throw new Error(await readErrorMessage(response));
+  return (await response.json()) as Person;
+};
+
+/**
+ * Fires a signal for a person by id. Public write path — CSRF is enforced
+ * globally, so the double-submit token travels in the x-csrf-token header
+ * (ADR-CLU-B1). The signal cookie is set on the preceding random GET.
+ */
+export const sendSignal = async (id: string, event: SignalEvent): Promise<void> => {
+  const response = await fetch(API_PATHS.PEOPLE_SIGNAL, {
+    method: 'POST',
+    headers: jsonHeaders(),
+    body: JSON.stringify({ id, event }),
+  });
+  if (!response.ok) throw new Error(await readErrorMessage(response));
+};

@@ -40,5 +40,7 @@ export const API_PATHS = {
   SESSION: '/api/session',
   KEY: '/api/key',
   ADMIN_PEOPLE: '/api/admin/people',
+  PEOPLE_RANDOM: '/api/people/random',
+  PEOPLE_SIGNAL: '/api/people/signal',
 } as const;
 
