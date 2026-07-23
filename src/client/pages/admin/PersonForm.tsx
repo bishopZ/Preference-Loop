@@ -18,12 +18,21 @@ import {
 
 interface FormValues {
   name: string;
+  imdbNameId: string;
+  slug: string;
   wikiTitle: string;
   wikiUrl: string;
   wikiImage: string;
 }
 
-const EMPTY_VALUES: FormValues = { name: '', wikiTitle: '', wikiUrl: '', wikiImage: '' };
+const EMPTY_VALUES: FormValues = {
+  name: '',
+  imdbNameId: '',
+  slug: '',
+  wikiTitle: '',
+  wikiUrl: '',
+  wikiImage: '',
+};
 
 const isValidUrl = (value: string): boolean => {
   try {
@@ -49,6 +58,8 @@ const validate = (values: FormValues): Partial<Record<keyof FormValues, string>>
 
 const toInput = (values: FormValues): PersonInput => ({
   name: values.name.trim(),
+  imdb_name_id: values.imdbNameId.trim() || null,
+  slug: values.slug.trim() || null,
   wikipedia_article_title: values.wikiTitle.trim() || null,
   wikipedia_page_url: values.wikiUrl.trim() || null,
   wikipedia_image_url: values.wikiImage.trim() || null,
@@ -56,6 +67,8 @@ const toInput = (values: FormValues): PersonInput => ({
 
 const toValues = (person: Person): FormValues => ({
   name: person.name,
+  imdbNameId: person.imdb_name_id ?? '',
+  slug: person.slug ?? '',
   wikiTitle: person.wikipedia_article_title ?? '',
   wikiUrl: person.wikipedia_page_url ?? '',
   wikiImage: person.wikipedia_image_url ?? '',
@@ -63,19 +76,23 @@ const toValues = (person: Person): FormValues => ({
 
 interface PersonFieldProps {
   field: keyof FormValues;
-  labelId: string;
+  /** Locale message id — used when label is omitted. */
+  labelId?: string;
+  /** Plain English label for admin-only fields (no i18n). */
+  label?: string;
   values: FormValues;
   errors: Partial<Record<keyof FormValues, string>>;
   onChange: (field: keyof FormValues, value: string) => void;
 }
 
-const PersonField = ({ field, labelId, values, errors, onChange }: PersonFieldProps) => {
+const PersonField = ({ field, labelId, label, values, errors, onChange }: PersonFieldProps) => {
   const intl = useIntl();
   const errorId = errors[field];
+  const resolvedLabel = label ?? (labelId ? intl.formatMessage({ id: labelId }) : field);
 
   return (
     <Field.Root invalid={Boolean(errorId)} required={field === 'name'}>
-      <Field.Label>{intl.formatMessage({ id: labelId })}</Field.Label>
+      <Field.Label>{resolvedLabel}</Field.Label>
       <Input
         data-testid={`person-${field}-input`}
         value={values[field]}
@@ -183,6 +200,8 @@ const PersonForm = () => {
             <form onSubmit={(event) => { void handleSubmit(event); }} noValidate>
               <VStack gap={4} align="stretch">
                 <PersonField field="name" labelId="admin.people.name" values={values} errors={errors} onChange={handleChange} />
+                <PersonField field="imdbNameId" label="IMDb ID" values={values} errors={errors} onChange={handleChange} />
+                <PersonField field="slug" label="Slug" values={values} errors={errors} onChange={handleChange} />
                 <PersonField field="wikiTitle" labelId="admin.people.wikiTitle" values={values} errors={errors} onChange={handleChange} />
                 <PersonField field="wikiUrl" labelId="admin.people.wikiUrl" values={values} errors={errors} onChange={handleChange} />
                 <PersonField field="wikiImage" labelId="admin.people.wikiImage" values={values} errors={errors} onChange={handleChange} />

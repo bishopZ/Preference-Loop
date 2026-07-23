@@ -5,6 +5,8 @@ import { getCsrfToken } from './csrf';
 export interface Person {
   id: string;
   name: string;
+  imdb_name_id: string | null;
+  slug: string | null;
   wikipedia_article_title: string | null;
   wikipedia_page_url: string | null;
   wikipedia_image_url: string | null;
@@ -18,6 +20,8 @@ export interface Person {
 /** Writable person fields (create and update payload). */
 export interface PersonInput {
   name: string;
+  imdb_name_id: string | null;
+  slug: string | null;
   wikipedia_article_title: string | null;
   wikipedia_page_url: string | null;
   wikipedia_image_url: string | null;

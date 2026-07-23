@@ -134,6 +134,8 @@ const getPgErrorCode = (err: unknown): string | undefined =>
 const PERSON_COLUMNS = `
   id,
   name,
+  imdb_name_id,
+  slug,
   wikipedia_article_title,
   wikipedia_page_url,
   wikipedia_image_url,
@@ -182,13 +184,19 @@ export const getRandomPerson = async (_req: Request, res: Response): Promise<voi
 /**
  * POST /api/admin/people
  *
- * Creates a person. Body: { name (required), wikipedia_article_title?,
- * wikipedia_page_url?, wikipedia_image_url? }.
+ * Creates a person. Body: { name (required), imdb_name_id?, slug?,
+ * wikipedia_article_title?, wikipedia_page_url?, wikipedia_image_url? }.
  * Returns 201 with the full person row. Requires ensureAuthenticatedApi.
  */
 export const createPerson = async (req: Request, res: Response): Promise<void> => {
-  const { name, wikipedia_article_title, wikipedia_page_url, wikipedia_image_url } =
-    req.body as Record<string, unknown>;
+  const {
+    name,
+    imdb_name_id,
+    slug,
+    wikipedia_article_title,
+    wikipedia_page_url,
+    wikipedia_image_url,
+  } = req.body as Record<string, unknown>;
 
   if (typeof name !== 'string' || name.trim().length === 0) {
     res.status(400).json({ error: 'name is required' });
@@ -209,6 +217,8 @@ export const createPerson = async (req: Request, res: Response): Promise<void> =
     normalizedTitle = wikipedia_article_title.trim();
   }
 
+  const imdbNameId = normalizeOptionalText(imdb_name_id) ?? null;
+  const slugValue = normalizeOptionalText(slug) ?? null;
   const pageUrl = normalizeOptionalText(wikipedia_page_url) ?? null;
   const imageUrl = normalizeOptionalText(wikipedia_image_url) ?? null;
 
@@ -216,21 +226,30 @@ export const createPerson = async (req: Request, res: Response): Promise<void> =
     const sql = `
       INSERT INTO people (
         name,
+        imdb_name_id,
+        slug,
         wikipedia_article_title,
         wikipedia_page_url,
         wikipedia_image_url,
         last_updated
       )
-      VALUES ($1, $2, $3, $4, now())
+      VALUES ($1, $2, $3, $4, $5, $6, now())
       RETURNING ${PERSON_COLUMNS}
     `;
-    const result = await query(sql, [name.trim(), normalizedTitle, pageUrl, imageUrl]);
+    const result = await query(sql, [
+      name.trim(),
+      imdbNameId,
+      slugValue,
+      normalizedTitle,
+      pageUrl,
+      imageUrl,
+    ]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
     if (getPgErrorCode(err) === PG_UNIQUE_VIOLATION) {
       res
         .status(409)
-        .json({ error: 'A person with that wikipedia_article_title already exists' });
+        .json({ error: 'A person with that unique field already exists' });
       return;
     }
     console.error('createPerson error:', err);
@@ -241,8 +260,9 @@ export const createPerson = async (req: Request, res: Response): Promise<void> =
 /**
  * PUT /api/admin/people/:id
  *
- * Partial update. Updatable fields: name, wikipedia_article_title (null clears
- * eligibility), wikipedia_page_url, wikipedia_image_url.
+ * Partial update. Updatable fields: name, imdb_name_id, slug,
+ * wikipedia_article_title (null clears eligibility), wikipedia_page_url,
+ * wikipedia_image_url.
  * Returns 200 with the full updated row. Requires ensureAuthenticatedApi.
  */
 export const updatePerson = async (req: Request, res: Response): Promise<void> => {
@@ -278,7 +298,12 @@ export const updatePerson = async (req: Request, res: Response): Promise<void> =
     }
   }
 
-  for (const field of ['wikipedia_page_url', 'wikipedia_image_url'] as const) {
+  for (const field of [
+    'imdb_name_id',
+    'slug',
+    'wikipedia_page_url',
+    'wikipedia_image_url',
+  ] as const) {
     if (field in body) {
       const normalized = normalizeOptionalText(body[field]);
       if (normalized === undefined && body[field] !== null) {
@@ -318,7 +343,7 @@ export const updatePerson = async (req: Request, res: Response): Promise<void> =
     if (code === PG_UNIQUE_VIOLATION) {
       res
         .status(409)
-        .json({ error: 'A person with that wikipedia_article_title already exists' });
+        .json({ error: 'A person with that unique field already exists' });
       return;
     }
     console.error('updatePerson error:', err);
@@ -358,7 +383,11 @@ export const getPeopleAdmin = async (_req: Request, res: Response): Promise<void
       SELECT
         id,
         name,
+        imdb_name_id,
+        slug,
         wikipedia_article_title,
+        wikipedia_page_url,
+        wikipedia_image_url,
         shown_count,
         trial_count,
         positive_count,

@@ -14,6 +14,8 @@ const getLoginCredentials = () => {
 interface PersonRow {
   id: string;
   name: string;
+  imdb_name_id: string | null;
+  slug: string | null;
   wikipedia_article_title: string | null;
 }
 
@@ -78,9 +80,13 @@ describe('Admin person form (F-04, F-14)', () => {
     });
   });
 
-  it('edits a person with pre-populated fields', () => {
+  it('edits a person with pre-populated fields including IMDb ID and slug', () => {
     const name = `Cypress Form Edit ${String(Date.now())}`;
     const updatedName = `${name} Updated`;
+    const imdbNameId = `nm${String(Date.now()).slice(-7)}`;
+    const slug = `cypress-form-edit-${String(Date.now())}`;
+    const updatedImdb = `${imdbNameId}x`;
+    const updatedSlug = `${slug}-updated`;
 
     withCsrfToken((csrfToken) => {
       login(csrfToken);
@@ -88,17 +94,25 @@ describe('Admin person form (F-04, F-14)', () => {
         method: 'POST',
         url: '/api/admin/people',
         headers: { 'x-csrf-token': csrfToken },
-        body: { name },
+        body: { name, imdb_name_id: imdbNameId, slug },
       }).then((created) => {
         cy.visit(`/admin/people/${created.body.id}/edit`);
         cy.get('[data-testid="person-name-input"]').should('have.value', name);
+        cy.get('[data-testid="person-imdbNameId-input"]').should('have.value', imdbNameId);
+        cy.get('[data-testid="person-slug-input"]').should('have.value', slug);
         cy.get('[data-testid="person-name-input"]').clear();
         cy.get('[data-testid="person-name-input"]').type(updatedName);
+        cy.get('[data-testid="person-imdbNameId-input"]').clear();
+        cy.get('[data-testid="person-imdbNameId-input"]').type(updatedImdb);
+        cy.get('[data-testid="person-slug-input"]').clear();
+        cy.get('[data-testid="person-slug-input"]').type(updatedSlug);
         cy.get('[data-testid="person-form-submit"]').click();
         cy.location('pathname').should('eq', '/admin/people');
         fetchPeople((people) => {
           const updated = people.find((row) => row.id === created.body.id);
           expect(updated?.name, 'updated name in admin list').to.eq(updatedName);
+          expect(updated?.imdb_name_id, 'updated imdb_name_id').to.eq(updatedImdb);
+          expect(updated?.slug, 'updated slug').to.eq(updatedSlug);
         });
       });
     });

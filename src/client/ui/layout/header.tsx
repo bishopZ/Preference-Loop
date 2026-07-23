@@ -21,8 +21,10 @@ const PUBLIC_NAV: NavItem[] = [
   { labelId: 'nav.login', to: ROUTES.LOGIN },
 ];
 
-const PRIVATE_NAV: NavItem[] = [
-  { labelId: 'nav.product', to: ROUTES.PRODUCT },
+// Admin nav (F-10). No separate dashboard page exists in this checkout —
+// the People page is the admin landing surface (see Build Plan R-06).
+const ADMIN_NAV: NavItem[] = [
+  { labelId: 'nav.people', to: ROUTES.ADMIN_PEOPLE },
   { labelId: 'nav.logout', to: ROUTES.LOGOUT },
 ];
 
@@ -48,8 +50,8 @@ const Header = ({ variant }: { variant: 'public' | 'private' }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navItems = variant === 'private' ? PRIVATE_NAV : PUBLIC_NAV;
-  const logoTo = variant === 'private' ? ROUTES.PRODUCT : ROUTES.HOME;
+  const navItems = variant === 'private' ? ADMIN_NAV : PUBLIC_NAV;
+  const logoTo = variant === 'private' ? ROUTES.ADMIN_PEOPLE : ROUTES.HOME;
 
   return (
     <>
